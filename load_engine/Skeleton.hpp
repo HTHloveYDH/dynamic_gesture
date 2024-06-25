@@ -69,28 +69,22 @@ bool Skeleton::processOpenCVInput_(const cv::Mat &img, const samplesCommon::Buff
   float *hostDataBuffer = static_cast<float *>(buffers.getHostBuffer(mParams_.inputTensorNames[0]));
   std::cout << "--->>> Processing of opencv!" << std::endl;
   // resize to inputSize * inputSize
-  cv::Mat resized_img;
-  cv::resize(img, resized_img, cv::Size(inputSize_, inputSize_), (0.0), (0.0), 2);  // interpolation: INTER_CUBIC
+  cv::Mat resizedImg;
+  cv::resize(img, resizedImg, cv::Size(inputSize_, inputSize_), (0.0), (0.0), 2);  // interpolation: INTER_CUBIC
   // print some information about image size and input size
   std::cout << "inputH_:" << inputH_ << std::endl;
   std::cout << "inputW_:" << inputW_ << std::endl;
   std::cout << "inputC_:" << inputC_ << std::endl;
-  std::cout << "resized_img height:" << resized_img.rows << std::endl;
-  std::cout << "resized_img width:" << resized_img.cols << std::endl;
-  std::cout << "resized_img channels::" << resized_img.channels() << std::endl;
-  // resize image
-  cv::Mat croped_mat = resized_img;
-  std::cout << "croped_mat is continue?:" << croped_mat.isContinuous() << std::endl;
-  // fill input buffer
-  for (int b = 0, volImg = inputC_ * inputH_ * inputW_; b < inputB_; b++) {
-    for (int c = 0, volChl = inputH_ * inputW_; c < inputC_; c++) {
-      for (int h = 0; h < inputH_; h++) {
-        for (int w = 0; w < inputW_; w++) {
-          hostDataBuffer[b * volImg + c * volChl + h * inputW_ + w] = (croped_mat.at<uchar>(h, w) - 128) / 256.0;
-        }
-      }
-    }
-  }
+  std::cout << "resizedImg height:" << resizedImg.rows << std::endl;
+  std::cout << "resizedImg width:" << resizedImg.cols << std::endl;
+  std::cout << "resizedImg channels::" << resizedImg.channels() << std::endl;
+  // normalize image
+  cv::Mat normalizedImg = cv::Mat(cv::Size(352, 352), CV_32FC1);
+  resizedImg.convertTo(normalizedImg, CV_32FC1, 1 / 255.f);
+  std::cout << "normalizedImg is continue?:" << normalizedImg.isContinuous() << std::endl;
+  int volChl = inputH_ * inputW_;
+  int volImg = inputC_ * volChl;
+  memcpy(hostDataBuffer, normalizedImg.data, sizeof(float) * inputB_ * volImg);
   return true;
 }
 
