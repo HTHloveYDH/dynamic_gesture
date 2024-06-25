@@ -43,6 +43,7 @@ public:
   virtual bool infer(InferenceResult *result) = 0;
 
 protected:
+  // TODO: this function shoule also be virtual and be implemented in 'Class Gesture'
   bool processQueueInput_(
     std::vector<float> &feat, const samplesCommon::BufferManager &buffers, std::queue<std::vector<float>> &inputsQueue
   );
@@ -67,6 +68,7 @@ protected:
   const float initImgWidth_ = 256.0;
   const float initImgHeight_ = 256.0;
 #endif
+  // TODO: this member data should be defined in 'Class Gesture'
   std::vector<float> nInputBufferVector_;
   std::shared_ptr<nvinfer1::ICudaEngine> mEngine_;  //!< The TensorRT engine used to run the network
 };
@@ -138,16 +140,8 @@ bool Net::processQueueInput_(std::vector<float> &feat, const samplesCommon::Buff
     inputsQueue.push(inputsQueue.front());
     inputsQueue.pop();
   }
-  // fill host buffer
-  for (int b = 0, volImg = inputC_ * inputH_ * inputW_; b < inputB_; b++) {
-    for (int c = 0, volChl = inputH_ * inputW_; c < inputC_; c++) {
-      for (int h = 0; h < inputH_; h++) {
-        for (int w = 0; w < inputW_; w++) {
-          hostDataBuffer[b * volImg + c * volChl + h * inputW_ + w] = nInputBufferVector_.at(b * volImg + c * volChl + h * inputW_ + w);
-        }
-      }
-    }
-  }
+  int volData = inputC_ * inputH_ * inputW_;
+  memcpy(hostDataBuffer, nInputBufferVector_.data(), sizeof(float) * inputB_ * volData);
   return true;
 }
 
