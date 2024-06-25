@@ -119,7 +119,7 @@ bool YOLO::processOpenCVInput_(const cv::Mat &img, const samplesCommon::BufferMa
   std::cout << "resizedImg width:" << resizedImg.cols << std::endl;
   std::cout << "resizedImg channels::" << resizedImg.channels() << std::endl;
   // normalize image
-  cv::Mat normalizedImg = cv::Mat(cv::Size(352, 352), CV_32FC1);
+  cv::Mat normalizedImg = cv::Mat(cv::Size(inputSize_, inputSize_), CV_32FC1);
   resizedImg.convertTo(normalizedImg, CV_32FC1, 1 / 255.f);
   std::cout << "normalizedImg is continue?:" << normalizedImg.isContinuous() << std::endl;
   int volChl = inputH_ * inputW_;
