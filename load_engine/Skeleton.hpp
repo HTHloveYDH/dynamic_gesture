@@ -126,12 +126,12 @@ bool Skeleton::infer(const cv::Mat &img, InferenceResult *result) {
   bool bret = true;
   const int kDevice = 0;
   if (kDevice == 0) {
-    cv::Rect handBBox(
+    cv::Rect handRect(
       result->handBoundingBoxOnFrame[0], result->handBoundingBoxOnFrame[1],  // x, y
       result->handBoundingBoxOnFrame[2] - result->handBoundingBoxOnFrame[0],  // w
       result->handBoundingBoxOnFrame[3] - result->handBoundingBoxOnFrame[1]  // h
     );
-    bret = processOpenCVInput_(img(handBBox), buffers);
+    bret = processOpenCVInput_(img(handRect), buffers);
     buffers.copyInputToDevice();
   }
   if (!bret) {return false;}
